@@ -1,0 +1,1 @@
+This portfolio is a minimalistic space theme mixing with old terminal style.
