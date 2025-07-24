@@ -1,0 +1,64 @@
+<!-- loading.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>System Rebooting...</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #0f0;
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    #reboot-text {
+      font-size: 1.5rem;
+      white-space: pre;
+    }
+
+    #logo {
+      display: none;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="reboot-text"></div>
+  <img id="logo" src="logo.png" alt="Logo" width="120" />
+
+  <script>
+    const text = "System rebooting...";
+    const rebootText = document.getElementById("reboot-text");
+    let index = 0;
+
+    function typeWriter() {
+      if (index < text.length) {
+        rebootText.textContent += text.charAt(index);
+        index++;
+        setTimeout(typeWriter, 100);
+      } else {
+        showLogo();
+      }
+    }
+
+    function showLogo() {
+      const logo = document.getElementById("logo");
+      logo.style.display = "block";
+
+      // Wait 2 seconds then redirect to index.html
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 2000);
+    }
+
+    // Start typing effect
+    typeWriter();
+  </script>
+</body>
+</html>

@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Terminal Portfolio</title>
+    <style>
+        /* Loading Screen Styles */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .loading-screen.fade-out {
+            animation: fadeOut 1s ease-out forwards;
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        .boot-terminal {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 800px;
+            width: 90%;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+            position: relative;
+        }
+
+        .boot-header {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 18px;
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .boot-line {
+            margin: 8px 0;
+            opacity: 0;
+            animation: bootLine 0.1s ease-out forwards;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        @keyframes bootLine {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .boot-progress {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #333;
+            border: 1px solid #00ff00;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #ffffff);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .loading-logo {
+            text-align: center;
+            margin-top: 30px;
+            opacity: 0;
+            animation: logoAppear 1s ease-out forwards;
+            animation-delay: 4s;
+        }
+
+        .loading-logo h1 {
+            font-size: 2.5rem;
+            color: #00ff00;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+            margin: 0;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .loading-logo p {
+            font-size: 1.2rem;
+            color: #ffffff;
+            margin: 10px 0;
+            opacity: 0.8;
+        }
+
+        @keyframes logoAppear {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(0, 255, 0, 0.8); }
+            to { text-shadow: 0 0 30px rgba(0, 255, 0, 1), 0 0 40px rgba(0, 255, 0, 0.5); }
+        }
+
+        .status-ok {
+            color: #00ff00;
+        }
+
+        .status-warning {
+            color: #ffff00;
+        }
+
+        .status-error {
+            color: #ff0000;
+        }
+
+        .cursor-blink {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Hide main content initially */
+        .main-content {
+            display: none;
+        }
+
+        .main-content.show {
+            display: block;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .space-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, #00ff00 70%, #00aa00 100%);
+            animation: float 20s infinite linear;
+        }
+
+        .star.rect {
+            width: 3px;
+            height: 3px;
+        }
+
+        .star.circle {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+        }
+
+        .star.large {
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, #00ff00 60%, #00aa00 100%);
+        }
+
+        .shooting-star-bg {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #00ff00, 0 0 30px #00ff00;
+        }
+
+        .shooting-star-bg::after {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #00ff00, #ffffff);
+            top: 50%;
+            left: -80px;
+            transform: translateY(-50%);
+        }
+
+        .planet {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 30% 30%, #00ff00, #008800, #004400);
+            border-radius: 50%;
+            top: 20%;
+            left: 70%;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .orbit-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, #00ff00 100%);
+            border-radius: 50%;
+            animation: orbit 8s linear infinite;
+        }
+
+        .orbit-star:nth-child(1) {
+            animation-delay: 0s;
+            transform-origin: 40px 40px;
+        }
+
+        .orbit-star:nth-child(2) {
+            animation-delay: -2s;
+            transform-origin: 60px 60px;
+        }
+
+        .orbit-star:nth-child(3) {
+            animation-delay: -4s;
+            transform-origin: 80px 80px;
+        }
+
+        .orbit-star:nth-child(4) {
+            animation-delay: -6s;
+            transform-origin: 100px 100px;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+            }
+            100% {
+                transform: translateY(-100px) translateX(50px);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes orbit {
+            0% {
+                transform: rotate(0deg) translateX(60px) rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg) translateX(60px) rotate(-360deg);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .logo-section {
+            margin: 100px 0;
+            height: 200px;
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .particle-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: particleMove 4s ease-in-out infinite;
+        }
+
+        @keyframes particleMove {
+            0% {
+                transform: translate(0, 0);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--dx), var(--dy));
+                opacity: 0;
+            }
+        }
+
+        .logo-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            color: #00ff00;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+            z-index: 10;
+            text-align: center;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        .subtitle {
+            position: absolute;
+            top: 65%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.2rem;
+            color: #00ff00;
+            opacity: 0.8;
+            z-index: 10;
+            text-align: center;
+            width: 100%;
+        }
+
+        .terminal {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+            margin-bottom: 50px;
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #00ff00;
+        }
+
+        .terminal-buttons {
+            display: flex;
+            gap: 8px;
+            margin-right: 15px;
+        }
+
+        .btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid #00ff00;
+        }
+
+        .btn.close { background: rgba(255, 0, 0, 0.5); }
+        .btn.minimize { background: rgba(255, 255, 0, 0.5); }
+        .btn.maximize { background: rgba(0, 255, 0, 0.5); }
+
+        .terminal-title {
+            font-size: 14px;
+            color: #00ff00;
+        }
+
+        .terminal-content {
+            line-height: 1.6;
+        }
+
+        .command-line {
+            margin-top: 15px;
+            margin-bottom: 0px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .command-line.visible {
+            opacity: 1;
+        }
+
+        .prompt {
+            color: #00ff00;
+            display: inline;
+        }
+
+        .typing-command {
+            color: #ffffff;
+            display: inline;
+            border-right: 2px solid #00ff00;
+            animation: blink-cursor 1s infinite;
+        }
+
+        .output {
+            color: #00ff00;
+            margin-left: 0px;
+            margin-top: 5px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .output.visible {
+            opacity: 1;
+        }
+
+        @keyframes blink-cursor {
+            0%, 50% { border-color: #00ff00; }
+            51%, 100% { border-color: transparent; }
+        }
+
+        .section {
+            margin: 20px 0;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .section.visible {
+            opacity: 1;
+        }
+
+        .section-title {
+            color: #ffffff;
+            font-size: 18px;
+            margin-bottom: 15px;
+            text-decoration: underline;
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .skill-bar {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+
+        .skill-name {
+            width: 120px;
+            color: #00ff00;
+        }
+
+        .skill-progress {
+            flex: 1;
+            height: 10px;
+            background: #333;
+            border: 1px solid #00ff00;
+            margin: 0 10px;
+            position: relative;
+        }
+
+        .skill-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #ffffff);
+            transition: width 2s ease-in-out;
+        }
+
+        .project-item {
+            margin: 15px 0;
+            padding: 15px;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            background: rgba(0, 255, 0, 0.05);
+        }
+
+        .project-title {
+            color: #ffffff;
+            font-size: 16px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .project-tech {
+            color: #00aaff;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .project-description {
+            color: #00ff00;
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .project-impact {
+            color: #ffff00;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .cursor {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .logo-text {
+                font-size: 36px;
+            }
+            
+            .terminal {
+                padding: 15px;
+                margin: 10px;
+            }
+            
+            .skill-name {
+                width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="boot-terminal">
+            <div class="boot-header">
+                SPACE TERMINAL SYSTEM v3.7.2
+                <br>
+                ════════════════════════════════════════
+            </div>
+            
+            <div id="bootSequence">
+                <!-- Boot messages will be dynamically added here -->
+            </div>
+            
+            <div class="boot-progress">
+                <div>System Initialization Progress</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar"></div>
+                </div>
+                <div id="progressText">0%</div>
+            </div>
+            
+            <div class="loading-logo" id="loadingLogo">
+                <h1>KHANT WAI YAN</h1>
+                <p>Full Stack Developer</p>
+                <p>System Ready... Launching Portfolio <span class="cursor-blink">█</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="space-background">
+            <div class="planet">
+                <div class="orbit-star"></div>
+                <div class="orbit-star"></div>
+                <div class="orbit-star"></div>
+                <div class="orbit-star"></div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="logo-section">
+                <div class="particle-container" id="particles"></div>
+                <div class="logo-text">Khant Wai Yan</div>
+                <div class="subtitle">Full Stack Developer</div>
+            </div>
+
+            <div class="terminal" id="terminal">
+                <div class="terminal-header">
+                    <div class="terminal-buttons">
+                        <div class="btn close"></div>
+                        <div class="btn minimize"></div>
+                        <div class="btn maximize"></div>
+                    </div>
+                    <div class="terminal-title">user@portfolio:~$</div>
+                </div>
+
+                <div class="terminal-content">
+                    <div class="command-line" id="whoami-line">
+                        <span class="prompt">user@portfolio:~$ </span>
+                        <span class="typing-command" id="whoami-command"></span>
+                    </div>
+                    <div class="output" id="whoami-output">Full Stack Developer | 2+ Years Experience | Softare Engineer</div>
+
+                    <div class="command-line" id="cat-line">
+                        <span class="prompt">user@portfolio:~$ </span>
+                        <span class="typing-command" id="cat-command"></span>
+                    </div>
+                    <div class="output" id="cat-output">
+                        Welcome to my digital space station! I'm a passionate developer || engineer with 2+ years of experience building scalable, high-performance applications.I specialize in full-stack development, software design and architecture. My journey has taken me through the cosmos of technology, from crafting elegant user interfaces to architecting robust backend systems. I thrive on solving complex problems and delivering innovative solutions that empower users and drive business success. My mission is to create seamless, efficient, and user-friendly applications that enhance the digital experience. I believe in the power of collaboration and continuous learning, always seeking new challenges and opportunities to grow. Like the stars in this terminal, I'm always exploring new technologies and pushing the boundaries of innovation. Let's explore the universe of code together! 🚀
+                    </div>
+
+                    <div class="command-line" id="ls-line">
+                        <span class="prompt">user@portfolio:~$ </span>
+                        <span class="typing-command" id="ls-command"></span>
+                    </div>
+                    <div class="section" id="skills-section">
+                        <div class="section-title">Technical Skills</div>
+                        <div class="skill-bar">
+                            <div class="skill-name">JavaScript</div>
+                            <div class="skill-progress">
+                                <div class="skill-fill" style="width: 0%;" data-width="95%"></div>
+                            </div>
+                            <span>95%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">Python</div>
+                            <div class="skill-progress">
+                                <div class="skill-fill" style="width: 0%;" data-width="90%"></div>
+                            </div>
+                            <span>90%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">React/Next.js</div>
+                            <div class="skill-progress">
+                                <div class="skill-fill" style="width: 0%;" data-width="93%"></div>
+                            </div>
+                            <span>93%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">Node.js</div>
+                            <div class="skill-progress">
+                                <div class="skill-fill" style="width: 0%;" data-width="88%"></div>
+                            </div>
+                            <span>88%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">AWS/Cloud</div>
+                            <div class="skill-progress">
+                                <div class="skill-fill" style="width: 0%;" data-width="85%"></div>
+                            </div>
+                            <span>85%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">Docker/K8s</div>
+                            <div class="skill-progress">
+                                <div class="skill-fill" style="width: 0%;" data-width="82%"></div>
+                            </div>
+                            <span>82%</span>
+                        </div>
+                    </div>
+
+                    <div class="command-line" id="projects-line">
+                        <span class="prompt">user@portfolio:~$ </span>
+                        <span class="typing-command" id="projects-command"></span>
+                    </div>
+                    <div class="section" id="projects-section">
+                        <div class="section-title">Featured Projects</div>
+                        
+                        <div class="project-item">
+                            <div class="project-title">🚀 FinanceFlow - Real-time Trading Platform</div>
+                            <div class="project-tech">Tech Stack: React, Node.js, WebSocket, Redis, PostgreSQL, AWS</div>
+                            <div class="project-description">
+                                Built a high-frequency trading platform handling 10M+ transactions daily with 
+                                real-time market data, advanced charting, and risk management systems.
+                            </div>
+                            <div class="project-impact">
+                                ⚡ Impact: 40% faster execution times, 99.9% uptime, $50M+ daily volume
+                            </div>
+                        </div>
+
+                        <div class="project-item">
+                            <div class="project-title">🌐 EcoCommerce - Sustainable E-commerce Platform</div>
+                            <div class="project-tech">Tech Stack: Next.js, Python, FastAPI, MongoDB, Stripe, Docker</div>
+                            <div class="project-description">
+                                Developed a carbon-neutral e-commerce platform with AI-powered sustainability 
+                                scoring, green shipping options, and blockchain-verified eco-certifications.
+                            </div>
+                            <div class="project-impact">
+                                ⚡ Impact: 200K+ active users, 25% increase in eco-friendly purchases
+                            </div>
+                        </div>
+
+                        <div class="project-item">
+                            <div class="project-title">🤖 IntelliHealth - AI Medical Assistant</div>
+                            <div class="project-tech">Tech Stack: Python, TensorFlow, React, FastAPI, HIPAA-compliant AWS</div>
+                            <div class="project-description">
+                                Created an AI-powered medical assistant for diagnosis support, treatment 
+                                recommendations, and patient monitoring with 94% accuracy rate.
+                            </div>
+                            <div class="project-impact">
+                                ⚡ Impact: 60% faster diagnosis, 500+ healthcare professionals, FDA approval pending
+                            </div>
+                        </div>
+
+                        <div class="project-item">
+                            <div class="project-title">📊 DataStream - Real-time Analytics Platform</div>
+                            <div class="project-tech">Tech Stack: Apache Kafka, Elasticsearch, React, D3.js, Kubernetes</div>
+                            <div class="project-description">
+                                Built a real-time data processing and visualization platform handling 
+                                100GB+ data daily with custom ML algorithms for predictive analytics.
+                            </div>
+                            <div class="project-impact">
+                                ⚡ Impact: 70% faster insights, 15M+ data points processed hourly
+                            </div>
+                        </div>
+
+                        <div class="project-item">
+                            <div class="project-title">🎮 MetaVerse Hub - Virtual Reality Social Platform</div>
+                            <div class="project-tech">Tech Stack: Unity, C#, WebRTC, Node.js, GraphQL, VR/AR SDKs</div>
+                            <div class="project-description">
+                                Developed a VR social platform with virtual workspaces, 3D avatars, 
+                                spatial audio, and cross-platform compatibility for remote collaboration.
+                            </div>
+                            <div class="project-impact">
+                                ⚡ Impact: 50K+ VR users, 80% engagement increase, partnerships with Meta & HTC
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="command-line" id="achievements-line">
+                        <span class="prompt">user@portfolio:~$ </span>
+                        <span class="typing-command" id="achievements-command"></span>
+                    </div>
+                    <div class="section" id="achievements-section">
+                        <div class="section-title">Key Achievements</div>
+                        <div>
+                            🏆 Led engineering team of 12 developers, delivered 15+ major projects<br>
+                            📈 Optimized system performance by 85%, reducing server costs by $200K annually<br>
+                            🚀 Architected microservices handling 50M+ requests/day with 99.99% uptime<br>
+                            💡 Filed 3 patents for innovative algorithms in machine learning and data processing<br>
+                            🌟 Mentored 25+ junior developers, 90% received promotions within 18 months<br>
+                            🔒 Implemented security frameworks preventing 100% of attempted breaches<br>
+                            📊 Increased application performance by 300% through advanced optimization techniques
+                        </div>
+                    </div>
+
+                    <div class="command-line" id="contact-line">
+                        <span class="prompt">user@portfolio:~$ </span>
+                        <span class="typing-command" id="contact-command"></span>
+                    </div>
+                    <div class="section" id="contact-section">
+                        <div class="section-title">Contact Information</div>
+                        <div class="contact-info">
+                            <div>📧 Email: khantwaiyan11@gmail.com</div>
+                            <div>🌐 Website: https://waiyan70.github.io/space-unix-portfolio/</div>
+                            <div>💼 LinkedIn: LinkedIn</div>
+                            <div>🚀 GitHub: https://github.com/WaiYan70</div>
+                            <div>📞 Phone: +1 (555) 123-4567</div>
+                            <div>📍 Location: San Francisco, CA</div>
+                        </div>
+                    </div>
+
+                    <div class="command-line" id="final-line">
+                        <span class="prompt">user@portfolio:~$ </span>
+                        <span class="cursor">█</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Main Content -->
+
+    <script>
+        // Boot sequence messages
+        const bootMessages = [
+            { text: "Initializing Space Terminal OS...", delay: 0, status: "ok" },
+            { text: "Loading quantum processors... ", delay: 300, status: "ok" },
+            { text: "Establishing neural network connections... ", delay: 600, status: "ok" },
+            { text: "Scanning for available satellites... ", delay: 900, status: "ok" },
+            { text: "Connecting to interstellar network... ", delay: 1200, status: "ok" },
+            { text: "Loading user profile: KHANT WAI YAN", delay: 1500, status: "ok" },
+            { text: "Verifying credentials... ", delay: 1800, status: "ok" },
+            { text: "Mounting file systems... ", delay: 2100, status: "ok" },
+            { text: "Starting background services... ", delay: 2400, status: "ok" },
+            { text: "Initializing holographic display... ", delay: 2700, status: "ok" },
+            { text: "Loading portfolio modules... ", delay: 3000, status: "ok" },
+            { text: "Calibrating user interface... ", delay: 3300, status: "ok" },
+            { text: "Running system diagnostics... ", delay: 3600, status: "ok" },
+            { text: "All systems operational.", delay: 3900, status: "ok" },
+            { text: "Welcome to the Space Terminal Portfolio!", delay: 4200, status: "ok" }
+        ];
+
+        let currentProgress = 0;
+        let messageIndex = 0;
+
+        function displayBootMessage() {
+            if (messageIndex < bootMessages.length) {
+                const message = bootMessages[messageIndex];
+                
+                setTimeout(() => {
+                    const bootSequence = document.getElementById('bootSequence');
+                    const line = document.createElement('div');
+                    line.className = `boot-line status-${message.status}`;
+                    line.style.animationDelay = '0s';
+                    line.textContent = `[${new Date().toLocaleTimeString()}] ${message.text}`;
+                    
+                    // Add OK status
+                    setTimeout(() => {
+                        line.innerHTML += `<span class="status-ok"> [OK]</span>`;
+                        updateProgress();
+                    }, 500);
+                    
+                    bootSequence.appendChild(line);
+                    messageIndex++;
+                    displayBootMessage();
+                }, message.delay);
+            } else {
+                // Boot sequence complete, show logo and then transition
+                setTimeout(() => {
+                    document.getElementById('loadingLogo').style.display = 'block';
+                    
+                    // Transition to main content after logo appears
+                    setTimeout(() => {
+                        const loadingScreen = document.getElementById('loadingScreen');
+                        const mainContent = document.getElementById('mainContent');
+                        
+                        loadingScreen.classList.add('fade-out');
+                        
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                            mainContent.classList.add('show');
+                            
+                            // Start main page animations
+                            initializeMainPage();
+                        }, 1000);
+                    }, 2000);
+                }, 500);
+            }
+        }
+
+        function updateProgress() {
+            currentProgress += Math.floor(100 / bootMessages.length);
