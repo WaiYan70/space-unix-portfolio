@@ -46,29 +46,44 @@
 
         .boot-text-container {
             flex: 1;
-            overflow: hidden;
+            overflow-y: auto;
             position: relative;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
         }
 
         .boot-text {
-            position: absolute;
-            bottom: 0;
-            left: 20px;
-            right: 20px;
+            position: relative;
             font-size: 12px;
             line-height: 1.4;
             color: #00ff00;
-            animation: scrollUp 8s ease-out forwards;
+            white-space: pre-wrap;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            max-height: 100%;
+            overflow-y: auto;
         }
 
-        @keyframes scrollUp {
-            0% {
-                transform: translateY(100vh);
-            }
-            100% {
-                transform: translateY(-100%);
-            }
+        .boot-line {
+            opacity: 0;
+            margin-bottom: 4px;
+        }
+
+        .boot-line.visible {
+            opacity: 1;
+        }
+
+        .boot-line.typing::after {
+            content: '█';
+            animation: blinkCursor 1s infinite;
+        }
+
+        @keyframes blinkCursor {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
         }
 
         .loading-footer {
@@ -828,19 +843,81 @@
             ""
         ];
 
-        // Loading screen management
+        // Typewriter effect for boot messages
+        function typeBootMessage(element, text, callback) {
+            let index = 0;
+            element.classList.add('typing');
+            
+            function type() {
+                if (index < text.length) {
+                    element.textContent = text.substring(0, index + 1);
+                    index++;
+                    setTimeout(type, 30 + Math.random() * 20); // Random typing speed
+                } else {
+                    element.classList.remove('typing');
+                    if (callback) {
+                        setTimeout(callback, 100); // Small delay before next line
+                    }
+                }
+            }
+            
+            type();
+        }
+
+        // Loading screen management with typewriter effect
         function initializeLoadingScreen() {
             const bootTextElement = document.getElementById('bootText');
-            bootTextElement.innerHTML = bootMessages.join('<br>');
+            let currentMessageIndex = 0;
             
-            // Hide loading screen and show main content after animations
-            setTimeout(() => {
-                document.getElementById('loadingScreen').classList.add('fade-out');
-                setTimeout(() => {
-                    document.getElementById('mainContent').classList.add('show');
-                    initializeMainContent();
-                }, 1000);
-            }, 12000); // Total loading time: 12 seconds
+            // Create container for all boot lines
+            bootMessages.forEach((message, index) => {
+                const lineElement = document.createElement('div');
+                lineElement.className = 'boot-line';
+                lineElement.id = `boot-line-${index}`;
+                bootTextElement.appendChild(lineElement);
+            });
+            
+            // Auto-scroll container
+            function scrollToBottom() {
+                bootTextElement.scrollTop = bootTextElement.scrollHeight;
+            }
+            
+            // Type messages sequentially
+            function typeNextMessage() {
+                if (currentMessageIndex < bootMessages.length) {
+                    const currentLine = document.getElementById(`boot-line-${currentMessageIndex}`);
+                    const message = bootMessages[currentMessageIndex];
+                    
+                    currentLine.classList.add('visible');
+                    
+                    if (message.trim() === '') {
+                        // Empty line - just show it immediately
+                        currentMessageIndex++;
+                        setTimeout(typeNextMessage, 200);
+                    } else {
+                        // Type the message
+                        typeBootMessage(currentLine, message, () => {
+                            currentMessageIndex++;
+                            scrollToBottom();
+                            setTimeout(typeNextMessage, 150 + Math.random() * 100);
+                        });
+                    }
+                    
+                    scrollToBottom();
+                } else {
+                    // All messages typed, proceed to progress bar phase
+                    setTimeout(() => {
+                        document.getElementById('loadingScreen').classList.add('fade-out');
+                        setTimeout(() => {
+                            document.getElementById('mainContent').classList.add('show');
+                            initializeMainContent();
+                        }, 1000);
+                    }, 2000);
+                }
+            }
+            
+            // Start typing sequence
+            setTimeout(typeNextMessage, 500);
         }
 
         // Initialize main content (your existing functions)

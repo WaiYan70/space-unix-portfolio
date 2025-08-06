@@ -19,6 +19,168 @@
             min-height: 100vh;
         }
 
+        /* Loading Screen Styles */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .loading-screen.fade-out {
+            animation: fadeOut 1s ease-out forwards;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        .boot-text-container {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .boot-text {
+            position: relative;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #00ff00;
+            white-space: pre-wrap;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            max-height: 100%;
+            overflow-y: auto;
+        }
+
+        .boot-line {
+            opacity: 0;
+            margin-bottom: 4px;
+        }
+
+        .boot-line.visible {
+            opacity: 1;
+        }
+
+        .boot-line.typing::after {
+            content: '█';
+            animation: blinkCursor 1s infinite;
+        }
+
+        @keyframes blinkCursor {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .loading-footer {
+            height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            border-top: 1px solid #00ff00;
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .loading-logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: logoFadeIn 1s ease-in 7s forwards;
+        }
+
+        @keyframes logoFadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .progress-container {
+            width: 300px;
+            height: 20px;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            background: #000;
+            overflow: hidden;
+            opacity: 0;
+            animation: progressFadeIn 1s ease-in 8s forwards;
+        }
+
+        @keyframes progressFadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #ffffff);
+            width: 0%;
+            animation: fillProgress 3s ease-out 8.5s forwards;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        @keyframes fillProgress {
+            to {
+                width: 100%;
+            }
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 12px;
+            opacity: 0;
+            animation: progressTextFadeIn 1s ease-in 8s forwards;
+        }
+
+        @keyframes progressTextFadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Main Portfolio Styles */
+        .main-content {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .main-content.show {
+            opacity: 1;
+            visibility: visible;
+            animation: mainFadeIn 1s ease-in;
+        }
+
+        @keyframes mainFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .space-background {
             position: fixed;
             top: 0;
@@ -392,6 +554,19 @@
         }
 
         @media (max-width: 768px) {
+            .boot-text {
+                font-size: 10px;
+                padding: 10px;
+            }
+            
+            .loading-logo {
+                font-size: 20px;
+            }
+            
+            .progress-container {
+                width: 250px;
+            }
+            
             .logo-text {
                 font-size: 36px;
             }
@@ -408,207 +583,362 @@
     </style>
 </head>
 <body>
-    <div class="space-background">
-        <div class="planet">
-            <div class="orbit-star"></div>
-            <div class="orbit-star"></div>
-            <div class="orbit-star"></div>
-            <div class="orbit-star"></div>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="boot-text-container">
+            <div class="boot-text" id="bootText"></div>
+        </div>
+        <div class="loading-footer">
+            <div class="loading-logo">SPACE TERMINAL v2.1</div>
+            <div class="progress-container">
+                <div class="progress-bar"></div>
+            </div>
+            <div class="progress-text">Initializing portfolio systems...</div>
         </div>
     </div>
 
-    <div class="container">
-        <div class="logo-section">
-            <div class="particle-container" id="particles"></div>
-            <div class="logo-text">Khant Wai Yan</div>
-            <div class="subtitle">Full Stack Developer</div>
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="space-background">
+            <div class="planet">
+                <div class="orbit-star"></div>
+                <div class="orbit-star"></div>
+                <div class="orbit-star"></div>
+                <div class="orbit-star"></div>
+            </div>
         </div>
 
-        <div class="terminal" id="terminal">
-            <div class="terminal-header">
-                <div class="terminal-buttons">
-                    <div class="btn close"></div>
-                    <div class="btn minimize"></div>
-                    <div class="btn maximize"></div>
-                </div>
-                <div class="terminal-title">user@portfolio:~$</div>
+        <div class="container">
+            <div class="logo-section">
+                <div class="particle-container" id="particles"></div>
+                <div class="logo-text">Khant Wai Yan</div>
+                <div class="subtitle">Full Stack Developer</div>
             </div>
 
-            <div class="terminal-content">
-                <div class="command-line" id="whoami-line">
-                    <span class="prompt">user@portfolio:~$ </span>
-                    <span class="typing-command" id="whoami-command"></span>
-                </div>
-                <div class="output" id="whoami-output">Full Stack Developer | 2+ Years Experience | Softare Engineer</div>
-
-                <div class="command-line" id="cat-line">
-                    <span class="prompt">user@portfolio:~$ </span>
-                    <span class="typing-command" id="cat-command"></span>
-                </div>
-                <div class="output" id="cat-output">
-                    Welcome to my digital space station! I'm a passionate developer || engineer with 2+ years of experience building scalable, high-performance applications.I specialize in full-stack development, software design and architecture. My journey has taken me through the cosmos of technology, from crafting elegant user interfaces to architecting robust backend systems. I thrive on solving complex problems and delivering innovative solutions that empower users and drive business success. My mission is to create seamless, efficient, and user-friendly applications that enhance the digital experience. I believe in the power of collaboration and continuous learning, always seeking new challenges and opportunities to grow. Like the stars in this terminal, I'm always exploring new technologies and pushing the boundaries of innovation. Let's explore the universe of code together! 🚀
+            <div class="terminal" id="terminal">
+                <div class="terminal-header">
+                    <div class="terminal-buttons">
+                        <div class="btn close"></div>
+                        <div class="btn minimize"></div>
+                        <div class="btn maximize"></div>
+                    </div>
+                    <div class="terminal-title">user@portfolio:~$</div>
                 </div>
 
-                <div class="command-line" id="ls-line">
-                    <span class="prompt">user@portfolio:~$ </span>
-                    <span class="typing-command" id="ls-command"></span>
-                </div>
-                <div class="section" id="skills-section">
-                    <div class="section-title">Technical Skills</div>
-                    <div class="skill-bar">
-                        <div class="skill-name">JavaScript</div>
-                        <div class="skill-progress">
-                            <div class="skill-fill" style="width: 0%;" data-width="95%"></div>
-                        </div>
-                        <span>95%</span>
+                <div class="terminal-content">
+                    <div class="command-line" id="whoami-line">
+                        <span class="prompt">user@portfolio:~$ </span>
+                        <span class="typing-command" id="whoami-command"></span>
                     </div>
-                    <div class="skill-bar">
-                        <div class="skill-name">Python</div>
-                        <div class="skill-progress">
-                            <div class="skill-fill" style="width: 0%;" data-width="90%"></div>
-                        </div>
-                        <span>90%</span>
-                    </div>
-                    <div class="skill-bar">
-                        <div class="skill-name">React/Next.js</div>
-                        <div class="skill-progress">
-                            <div class="skill-fill" style="width: 0%;" data-width="93%"></div>
-                        </div>
-                        <span>93%</span>
-                    </div>
-                    <div class="skill-bar">
-                        <div class="skill-name">Node.js</div>
-                        <div class="skill-progress">
-                            <div class="skill-fill" style="width: 0%;" data-width="88%"></div>
-                        </div>
-                        <span>88%</span>
-                    </div>
-                    <div class="skill-bar">
-                        <div class="skill-name">AWS/Cloud</div>
-                        <div class="skill-progress">
-                            <div class="skill-fill" style="width: 0%;" data-width="85%"></div>
-                        </div>
-                        <span>85%</span>
-                    </div>
-                    <div class="skill-bar">
-                        <div class="skill-name">Docker/K8s</div>
-                        <div class="skill-progress">
-                            <div class="skill-fill" style="width: 0%;" data-width="82%"></div>
-                        </div>
-                        <span>82%</span>
-                    </div>
-                </div>
+                    <div class="output" id="whoami-output">Full Stack Developer | 2+ Years Experience | Software Engineer</div>
 
-                <div class="command-line" id="projects-line">
-                    <span class="prompt">user@portfolio:~$ </span>
-                    <span class="typing-command" id="projects-command"></span>
-                </div>
-                <div class="section" id="projects-section">
-                    <div class="section-title">Featured Projects</div>
-                    
-                    <div class="project-item">
-                        <div class="project-title">🚀 FinanceFlow - Real-time Trading Platform</div>
-                        <div class="project-tech">Tech Stack: React, Node.js, WebSocket, Redis, PostgreSQL, AWS</div>
-                        <div class="project-description">
-                            Built a high-frequency trading platform handling 10M+ transactions daily with 
-                            real-time market data, advanced charting, and risk management systems.
+                    <div class="command-line" id="cat-line">
+                        <span class="prompt">user@portfolio:~$ </span>
+                        <span class="typing-command" id="cat-command"></span>
+                    </div>
+                    <div class="output" id="cat-output">
+                        Welcome to my digital space station! I'm a passionate developer || engineer with 2+ years of experience building scalable, high-performance applications.I specialize in full-stack development, software design and architecture. My journey has taken me through the cosmos of technology, from crafting elegant user interfaces to architecting robust backend systems. I thrive on solving complex problems and delivering innovative solutions that empower users and drive business success. My mission is to create seamless, efficient, and user-friendly applications that enhance the digital experience. I believe in the power of collaboration and continuous learning, always seeking new challenges and opportunities to grow. Like the stars in this terminal, I'm always exploring new technologies and pushing the boundaries of innovation. Let's explore the universe of code together! 🚀
+                    </div>
+
+                    <div class="command-line" id="ls-line">
+                        <span class="prompt">user@portfolio:~$ </span>
+                        <span class="typing-command" id="ls-command"></span>
+                    </div>
+                    <div class="section" id="skills-section">
+                        <div class="section-title">Technical Skills</div>
+                        <div class="skill-bar">
+                            <div class="skill-name">JavaScript</div>
+                            <div class="skill-progress">
+                                <div class="skill-fill" style="width: 0%;" data-width="95%"></div>
+                            </div>
+                            <span>95%</span>
                         </div>
-                        <div class="project-impact">
-                            ⚡ Impact: 40% faster execution times, 99.9% uptime, $50M+ daily volume
+                        <div class="skill-bar">
+                            <div class="skill-name">Python</div>
+                            <div class="skill-progress">
+                                <div class="skill-fill" style="width: 0%;" data-width="90%"></div>
+                            </div>
+                            <span>90%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">React/Next.js</div>
+                            <div class="skill-progress">
+                                <div class="skill-fill" style="width: 0%;" data-width="93%"></div>
+                            </div>
+                            <span>93%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">Node.js</div>
+                            <div class="skill-progress">
+                                <div class="skill-fill" style="width: 0%;" data-width="88%"></div>
+                            </div>
+                            <span>88%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">AWS/Cloud</div>
+                            <div class="skill-progress">
+                                <div class="skill-fill" style="width: 0%;" data-width="85%"></div>
+                            </div>
+                            <span>85%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">Docker/K8s</div>
+                            <div class="skill-progress">
+                                <div class="skill-fill" style="width: 0%;" data-width="82%"></div>
+                            </div>
+                            <span>82%</span>
                         </div>
                     </div>
 
-                    <div class="project-item">
-                        <div class="project-title">🌐 EcoCommerce - Sustainable E-commerce Platform</div>
-                        <div class="project-tech">Tech Stack: Next.js, Python, FastAPI, MongoDB, Stripe, Docker</div>
-                        <div class="project-description">
-                            Developed a carbon-neutral e-commerce platform with AI-powered sustainability 
-                            scoring, green shipping options, and blockchain-verified eco-certifications.
+                    <div class="command-line" id="projects-line">
+                        <span class="prompt">user@portfolio:~$ </span>
+                        <span class="typing-command" id="projects-command"></span>
+                    </div>
+                    <div class="section" id="projects-section">
+                        <div class="section-title">Featured Projects</div>
+                        
+                        <div class="project-item">
+                            <div class="project-title">🚀 FinanceFlow - Real-time Trading Platform</div>
+                            <div class="project-tech">Tech Stack: React, Node.js, WebSocket, Redis, PostgreSQL, AWS</div>
+                            <div class="project-description">
+                                Built a high-frequency trading platform handling 10M+ transactions daily with 
+                                real-time market data, advanced charting, and risk management systems.
+                            </div>
+                            <div class="project-impact">
+                                ⚡ Impact: 40% faster execution times, 99.9% uptime, $50M+ daily volume
+                            </div>
                         </div>
-                        <div class="project-impact">
-                            ⚡ Impact: 200K+ active users, 25% increase in eco-friendly purchases
+
+                        <div class="project-item">
+                            <div class="project-title">🌐 EcoCommerce - Sustainable E-commerce Platform</div>
+                            <div class="project-tech">Tech Stack: Next.js, Python, FastAPI, MongoDB, Stripe, Docker</div>
+                            <div class="project-description">
+                                Developed a carbon-neutral e-commerce platform with AI-powered sustainability 
+                                scoring, green shipping options, and blockchain-verified eco-certifications.
+                            </div>
+                            <div class="project-impact">
+                                ⚡ Impact: 200K+ active users, 25% increase in eco-friendly purchases
+                            </div>
+                        </div>
+
+                        <div class="project-item">
+                            <div class="project-title">🤖 IntelliHealth - AI Medical Assistant</div>
+                            <div class="project-tech">Tech Stack: Python, TensorFlow, React, FastAPI, HIPAA-compliant AWS</div>
+                            <div class="project-description">
+                                Created an AI-powered medical assistant for diagnosis support, treatment 
+                                recommendations, and patient monitoring with 94% accuracy rate.
+                            </div>
+                            <div class="project-impact">
+                                ⚡ Impact: 60% faster diagnosis, 500+ healthcare professionals, FDA approval pending
+                            </div>
+                        </div>
+
+                        <div class="project-item">
+                            <div class="project-title">📊 DataStream - Real-time Analytics Platform</div>
+                            <div class="project-tech">Tech Stack: Apache Kafka, Elasticsearch, React, D3.js, Kubernetes</div>
+                            <div class="project-description">
+                                Built a real-time data processing and visualization platform handling 
+                                100GB+ data daily with custom ML algorithms for predictive analytics.
+                            </div>
+                            <div class="project-impact">
+                                ⚡ Impact: 70% faster insights, 15M+ data points processed hourly
+                            </div>
+                        </div>
+
+                        <div class="project-item">
+                            <div class="project-title">🎮 MetaVerse Hub - Virtual Reality Social Platform</div>
+                            <div class="project-tech">Tech Stack: Unity, C#, WebRTC, Node.js, GraphQL, VR/AR SDKs</div>
+                            <div class="project-description">
+                                Developed a VR social platform with virtual workspaces, 3D avatars, 
+                                spatial audio, and cross-platform compatibility for remote collaboration.
+                            </div>
+                            <div class="project-impact">
+                                ⚡ Impact: 50K+ VR users, 80% engagement increase, partnerships with Meta & HTC
+                            </div>
                         </div>
                     </div>
 
-                    <div class="project-item">
-                        <div class="project-title">🤖 IntelliHealth - AI Medical Assistant</div>
-                        <div class="project-tech">Tech Stack: Python, TensorFlow, React, FastAPI, HIPAA-compliant AWS</div>
-                        <div class="project-description">
-                            Created an AI-powered medical assistant for diagnosis support, treatment 
-                            recommendations, and patient monitoring with 94% accuracy rate.
-                        </div>
-                        <div class="project-impact">
-                            ⚡ Impact: 60% faster diagnosis, 500+ healthcare professionals, FDA approval pending
+                    <div class="command-line" id="achievements-line">
+                        <span class="prompt">user@portfolio:~$ </span>
+                        <span class="typing-command" id="achievements-command"></span>
+                    </div>
+                    <div class="section" id="achievements-section">
+                        <div class="section-title">Key Achievements</div>
+                        <div>
+                            🏆 Led engineering team of 12 developers, delivered 15+ major projects<br>
+                            📈 Optimized system performance by 85%, reducing server costs by $200K annually<br>
+                            🚀 Architected microservices handling 50M+ requests/day with 99.99% uptime<br>
+                            💡 Filed 3 patents for innovative algorithms in machine learning and data processing<br>
+                            🌟 Mentored 25+ junior developers, 90% received promotions within 18 months<br>
+                            🔒 Implemented security frameworks preventing 100% of attempted breaches<br>
+                            📊 Increased application performance by 300% through advanced optimization techniques
                         </div>
                     </div>
 
-                    <div class="project-item">
-                        <div class="project-title">📊 DataStream - Real-time Analytics Platform</div>
-                        <div class="project-tech">Tech Stack: Apache Kafka, Elasticsearch, React, D3.js, Kubernetes</div>
-                        <div class="project-description">
-                            Built a real-time data processing and visualization platform handling 
-                            100GB+ data daily with custom ML algorithms for predictive analytics.
-                        </div>
-                        <div class="project-impact">
-                            ⚡ Impact: 70% faster insights, 15M+ data points processed hourly
+                    <div class="command-line" id="contact-line">
+                        <span class="prompt">user@portfolio:~$ </span>
+                        <span class="typing-command" id="contact-command"></span>
+                    </div>
+                    <div class="section" id="contact-section">
+                        <div class="section-title">Contact Information</div>
+                        <div class="contact-info">
+                            <div>📧 Email: khantwaiyan11@gmail.com</div>
+                            <div>🌐 Website: https://waiyan70.github.io/space-unix-portfolio/</div>
+                            <div>💼 LinkedIn: LinkedIn</div>
+                            <div>🚀 GitHub: https://github.com/WaiYan70</div>
+                            <div>📞 Phone: +1 (555) 123-4567</div>
+                            <div>📍 Location: San Francisco, CA</div>
                         </div>
                     </div>
 
-                    <div class="project-item">
-                        <div class="project-title">🎮 MetaVerse Hub - Virtual Reality Social Platform</div>
-                        <div class="project-tech">Tech Stack: Unity, C#, WebRTC, Node.js, GraphQL, VR/AR SDKs</div>
-                        <div class="project-description">
-                            Developed a VR social platform with virtual workspaces, 3D avatars, 
-                            spatial audio, and cross-platform compatibility for remote collaboration.
-                        </div>
-                        <div class="project-impact">
-                            ⚡ Impact: 50K+ VR users, 80% engagement increase, partnerships with Meta & HTC
-                        </div>
+                    <div class="command-line" id="final-line">
+                        <span class="prompt">user@portfolio:~$ </span>
+                        <span class="cursor">█</span>
                     </div>
-                </div>
-
-                <div class="command-line" id="achievements-line">
-                    <span class="prompt">user@portfolio:~$ </span>
-                    <span class="typing-command" id="achievements-command"></span>
-                </div>
-                <div class="section" id="achievements-section">
-                    <div class="section-title">Key Achievements</div>
-                    <div>
-                        🏆 Led engineering team of 12 developers, delivered 15+ major projects<br>
-                        📈 Optimized system performance by 85%, reducing server costs by $200K annually<br>
-                        🚀 Architected microservices handling 50M+ requests/day with 99.99% uptime<br>
-                        💡 Filed 3 patents for innovative algorithms in machine learning and data processing<br>
-                        🌟 Mentored 25+ junior developers, 90% received promotions within 18 months<br>
-                        🔒 Implemented security frameworks preventing 100% of attempted breaches<br>
-                        📊 Increased application performance by 300% through advanced optimization techniques
-                    </div>
-                </div>
-
-                <div class="command-line" id="contact-line">
-                    <span class="prompt">user@portfolio:~$ </span>
-                    <span class="typing-command" id="contact-command"></span>
-                </div>
-                <div class="section" id="contact-section">
-                    <div class="section-title">Contact Information</div>
-                    <div class="contact-info">
-                        <div>📧 Email: khantwaiyan11@gmail.com</div>
-                        <div>🌐 Website: https://waiyan70.github.io/space-unix-portfolio/</div>
-                        <div>💼 LinkedIn: LinkedIn</div>
-                        <div>🚀 GitHub: https://github.com/WaiYan70</div>
-                        <div>📞 Phone: +1 (555) 123-4567</div>
-                        <div>📍 Location: San Francisco, CA</div>
-                    </div>
-                </div>
-
-                <div class="command-line" id="final-line">
-                    <span class="prompt">user@portfolio:~$ </span>
-                    <span class="cursor">█</span>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        // Boot text messages for loading screen
+        const bootMessages = [
+            "SPACE TERMINAL BOOT SEQUENCE INITIATED...",
+            "",
+            "Checking system integrity... [OK]",
+            "Loading kernel modules... [OK]",
+            "Initializing quantum processors... [OK]",
+            "Connecting to neural networks... [OK]",
+            "Mounting space filesystems... [OK]",
+            "Starting cosmic background services... [OK]",
+            "",
+            "Loading portfolio components:",
+            "  ├── Personal information module... [OK]",
+            "  ├── Skills assessment system... [OK]", 
+            "  ├── Project database... [OK]",
+            "  ├── Achievement tracker... [OK]",
+            "  ├── Contact interface... [OK]",
+            "  └── Interactive terminal... [OK]",
+            "",
+            "Establishing secure connections:",
+            "  ├── GitHub API... [CONNECTED]",
+            "  ├── LinkedIn integration... [CONNECTED]",
+            "  ├── Email gateway... [CONNECTED]",
+            "  └── Portfolio server... [CONNECTED]",
+            "",
+            "Calibrating space-time coordinates... [OK]",
+            "Synchronizing with orbital stations... [OK]",
+            "Activating particle effects... [OK]",
+            "Initializing star field generator... [OK]",
+            "Loading shooting star patterns... [OK]",
+            "",
+            "System diagnostics complete.",
+            "All systems nominal.",
+            "Ready for launch sequence...",
+            "",
+            "WELCOME TO THE DIGITAL COSMOS",
+            "Preparing main interface...",
+            "",
+            "Loading complete. Transitioning to portfolio...",
+            ""
+        ];
+
+        // Typewriter effect for boot messages
+        function typeBootMessage(element, text, callback) {
+            let index = 0;
+            element.classList.add('typing');
+            
+            function type() {
+                if (index < text.length) {
+                    element.textContent = text.substring(0, index + 1);
+                    index++;
+                    setTimeout(type, 30 + Math.random() * 20); // Random typing speed
+                } else {
+                    element.classList.remove('typing');
+                    if (callback) {
+                        setTimeout(callback, 100); // Small delay before next line
+                    }
+                }
+            }
+            
+            type();
+        }
+
+        // Loading screen management with typewriter effect
+        function initializeLoadingScreen() {
+            const bootTextElement = document.getElementById('bootText');
+            let currentMessageIndex = 0;
+            
+            // Create container for all boot lines
+            bootMessages.forEach((message, index) => {
+                const lineElement = document.createElement('div');
+                lineElement.className = 'boot-line';
+                lineElement.id = `boot-line-${index}`;
+                bootTextElement.appendChild(lineElement);
+            });
+            
+            // Auto-scroll container
+            function scrollToBottom() {
+                bootTextElement.scrollTop = bootTextElement.scrollHeight;
+            }
+            
+            // Type messages sequentially
+            function typeNextMessage() {
+                if (currentMessageIndex < bootMessages.length) {
+                    const currentLine = document.getElementById(`boot-line-${currentMessageIndex}`);
+                    const message = bootMessages[currentMessageIndex];
+                    
+                    currentLine.classList.add('visible');
+                    
+                    if (message.trim() === '') {
+                        // Empty line - just show it immediately
+                        currentMessageIndex++;
+                        setTimeout(typeNextMessage, 200);
+                    } else {
+                        // Type the message
+                        typeBootMessage(currentLine, message, () => {
+                            currentMessageIndex++;
+                            scrollToBottom();
+                            setTimeout(typeNextMessage, 150 + Math.random() * 100);
+                        });
+                    }
+                    
+                    scrollToBottom();
+                } else {
+                    // All messages typed, proceed to progress bar phase
+                    setTimeout(() => {
+                        document.getElementById('loadingScreen').classList.add('fade-out');
+                        setTimeout(() => {
+                            document.getElementById('mainContent').classList.add('show');
+                            initializeMainContent();
+                        }, 1000);
+                    }, 2000);
+                }
+            }
+            
+            // Start typing sequence
+            setTimeout(typeNextMessage, 500);
+        }
+
+        // Initialize main content (your existing functions)
+        function initializeMainContent() {
+            createParticles();
+            
+            // Start terminal animation based on screen size
+            if (window.innerWidth <= 768) {
+                startTerminalAnimation();
+            } else {
+                observer.observe(document.getElementById('terminal'));
+            }
+
+            // Start background effects
+            for (let i = 0; i < 50; i++) {
+                setTimeout(createStar, i * 100);
+            }
+            setInterval(createShootingStar, 6000 + Math.random() * 4000);
+            setInterval(createStar, 500);
+        }
+
         // Create moving background stars
         function createStar() {
             const star = document.createElement('div');
@@ -631,12 +961,11 @@
             }, 25000);
         }
 
-        // Create shooting stars from random angles (SLOWED DOWN)
+        // Create shooting stars
         function createShootingStar() {
             const shootingStar = document.createElement('div');
             shootingStar.className = 'shooting-star-bg';
             
-            // Random starting position and angle
             const angle = Math.random() * 360;
             const startX = Math.random() * window.innerWidth;
             const startY = Math.random() * window.innerHeight;
@@ -647,9 +976,8 @@
             
             document.querySelector('.space-background').appendChild(shootingStar);
             
-            // Animate shooting star (SLOWED DOWN: increased duration)
             const distance = Math.max(window.innerWidth, window.innerHeight) * 1.5;
-            const duration = 4000 + Math.random() * 2000; // Increased from 2000 + 1000
+            const duration = 4000 + Math.random() * 2000;
             
             const endX = startX + Math.cos(angle * Math.PI / 180) * distance;
             const endY = startY + Math.sin(angle * Math.PI / 180) * distance;
@@ -681,7 +1009,6 @@
                 const centerX = container.offsetWidth / 2;
                 const centerY = container.offsetHeight / 2;
                 
-                // Create convergence effect toward center
                 const endX = centerX + (Math.random() - 0.5) * 200;
                 const endY = centerY + (Math.random() - 0.5) * 60;
                 
@@ -706,7 +1033,6 @@
                     index++;
                     setTimeout(type, 80 + Math.random() * 40);
                 } else {
-                    // Remove cursor animation
                     element.style.borderRight = 'none';
                     if (callback) callback();
                 }
@@ -747,7 +1073,6 @@
                         typeCommand('ls-command', 'ls -la skills/', () => {
                             setTimeout(() => {
                                 document.getElementById('skills-section').classList.add('visible');
-                                // Animate skill bars
                                 const skillFills = document.querySelectorAll('.skill-fill');
                                 skillFills.forEach((fill, index) => {
                                     setTimeout(() => {
@@ -805,56 +1130,19 @@
         }
 
         // Intersection Observer for scroll-triggered animations
-        // const observer = new IntersectionObserver((entries) => {
-        //     entries.forEach(entry => {
-        //         if (entry.isIntersecting && entry.target.id === 'terminal') {
-        //             startTerminalAnimation();
-        //             observer.unobserve(entry.target);
-        //         }
-        //     });
-        // }, { threshold: 0.3 });
-
-        // // Initialize
-        // window.addEventListener('load', () => {
-        //     createParticles()
-        //     // Observe terminal for scroll-triggered typing
-        //     observer.observe(document.getElementById('terminal'));
-        //     // Create initial stars
-        //     for (let i = 0; i < 50; i++) {
-        //         setTimeout(createStar, i * 100);
-        //     }
-        //     // Create shooting stars periodically (SLOWED DOWN: increased interval)
-        //     setInterval(createShootingStar, 6000 + Math.random() * 4000); // Increased from 3000 + 2000
-        // });
-        
-        // Intersection Observer for scroll-triggered animations (Mobile View, Desktop View)
         const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting && entry.target.id === 'terminal') {
-            startTerminalAnimation();
-            observer.unobserve(entry.target);
-            }
-        });
+            entries.forEach(entry => {
+                if (entry.isIntersecting && entry.target.id === 'terminal') {
+                    startTerminalAnimation();
+                    observer.unobserve(entry.target);
+                }
+            });
         }, { threshold: 0 });
 
+        // Initialize everything when page loads
         window.addEventListener('load', () => {
-        createParticles();
-
-        if (window.innerWidth <= 768) {
-            startTerminalAnimation();
-        } else {
-            observer.observe(document.getElementById('terminal'));
-        }
-
-        for (let i = 0; i < 50; i++) {
-            setTimeout(createStar, i * 100);
-        }
-        setInterval(createShootingStar, 6000 + Math.random() * 4000);
-        setInterval(createStar, 500);
+            initializeLoadingScreen();
         });
-
-        // Continue creating stars
-        setInterval(createStar, 500);
     </script>
 </body>
 </html>
